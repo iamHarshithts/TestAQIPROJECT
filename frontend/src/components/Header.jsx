@@ -9,7 +9,7 @@ const Header = ({ lat, lon, setLat, setLon, onCheck, onGPS, loading }) => (
     <div className="flex items-center gap-3">
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Air Quality Index </h1>
-        <p className="text-slate-500 font-medium">Real-time Monitoring</p>
+        <p className="text-slate-500 ml-8 font-medium">Real-time Monitoring</p>
       </div>
     </div>
 
@@ -37,7 +37,7 @@ const Header = ({ lat, lon, setLat, setLon, onCheck, onGPS, loading }) => (
           onClick={onGPS}
           className="border-2 border-yellow-500 text-yellow-500 bg-white hover:bg-yellow-500 hover:text-white hover:border-yellow-500 text-black px-6 flex items-center gap-2 py-1 rounded-xl transition-all font-semibold shadow-lg shadow-black-100 active:scale-95"
         >
-          <Navigation size={22} /> My Location
+          <Navigation size={22} /> Get AQI at my Location
         </button>
       </div>
     </div>

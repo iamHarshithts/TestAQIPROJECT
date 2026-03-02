@@ -1,4 +1,4 @@
-import { useState ,useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import {
   Wind, MapPin, Navigation, Calendar, Map as MapIcon,
   Activity, Info, CloudRain, AlertCircle
@@ -12,6 +12,21 @@ import SplashScreen from './components/SplashScreen';
 import { API_BASE_URL, OWM_API_KEY } from './constants/config'
 import './App.css'
 import './index.css'
+
+const isValidLatLon = (lat, lon) => {
+  const la = parseFloat(lat);
+  const lo = parseFloat(lon);
+  if (isNaN(la) || isNaN(lo)) return false;
+  if (la < -90 || la > 90) return false;
+  if (lo < -180 || lo > 180) return false;
+  const latStr = String(lat).trim();
+  const lonStr = String(lon).trim();
+  const latDecimals = latStr.includes('.') ? latStr.split('.')[1].length : 0;
+  const lonDecimals = lonStr.includes('.') ? lonStr.split('.')[1].length : 0;
+  if (latDecimals < 2 || lonDecimals < 2) return false;
+  return true;
+};
+
 const App = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,6 +34,7 @@ const App = () => {
     }, 4000);
     return () => clearTimeout(timer);
   }, []);
+
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [lat, setLat] = useState('');
@@ -27,11 +43,25 @@ const App = () => {
   const [error, setError] = useState(null);
   const [aqiData, setAqiData] = useState(null);
   const [forecast, setForecast] = useState([]);
+  const [locationName, setLocationName] = useState('');
 
   const fetchAqi = async (tLat, tLon) => {
+    if (!isValidLatLon(tLat, tLon)) {
+      setError("Please enter valid coordinates with at least 2 decimal places. e.g. Lat: 22.334, Lon: 77.445");
+      setAqiData(null);
+      setForecast([]);
+      setLocationName('');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
+      const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${tLat}&lon=${tLon}&limit=1&appid=${OWM_API_KEY}`);
+      const geoData = await geoRes.json();
+      if (geoData.length > 0) {
+        setLocationName(`${geoData[0].name}, ${geoData[0].country}`);
+      }
+
       const response = await fetch(`${API_BASE_URL}/predict?lat=${tLat}&lon=${tLon}`);
       if (!response.ok) throw new Error("Backend Offline");
       const data = await response.json();
@@ -73,9 +103,11 @@ const App = () => {
       (err) => { setError(err.message); setLoading(false); }
     );
   };
+
   if (showSplash) {
     return <SplashScreen />;
   }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 text-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -86,8 +118,9 @@ const App = () => {
         />
 
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl flex items-center gap-3 animate-bounce">
-            <AlertCircle size={20} /> <p className="text-sm font-medium">{error}</p>
+          <div className="mb-6 bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl flex items-center gap-3">
+            <AlertCircle size={20} className="shrink-0" />
+            <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
@@ -101,18 +134,21 @@ const App = () => {
             </div>
           ) : aqiData ? (
             <>
-              {activeTab === 'overview' && <AQIOverview data={aqiData} />}
-              {activeTab === 'heatmap' && <HeatmapView lat={lat} lon={lon} />}
+              {activeTab === 'overview' && <AQIOverview data={aqiData} locationName={locationName} />}
+              {activeTab === 'heatmap' && <HeatmapView lat={lat} lon={lon} locationName={locationName} />}
               {activeTab === 'forecast' && <ForecastView
                 forecast={forecast}
                 loading={loading}
                 lat={lat}
                 lon={lon}
+                locationName={locationName}
               />}
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-[500px] text-center">
-              <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-6"><Activity className="text-yellow-500" size={40} /></div>
+              <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-6">
+                <Activity className="text-yellow-500" size={40} />
+              </div>
               <h2 className="text-2xl font-black text-slate-900">Atmospheric Data Pending</h2>
               <p className="text-slate-500 max-w-xs mx-auto text-sm mt-2">Enter coordinates or use GPS to begin real-time analysis.</p>
             </div>
