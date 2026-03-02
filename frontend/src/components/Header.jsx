@@ -26,7 +26,7 @@ const Header = ({ lat, lon, setLat, setLon, onCheck, onGPS, loading }) => (
           className="w-full px-3 py-2 bg-transparent outline-none text-sm border-l"
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button 
           onClick={onCheck} disabled={loading}
           className="border-2 border-yellow-500 text-yellow-500 bg-white hover:bg-yellow-500 hover:text-white hover:border-yellow-500 text-black px-6 py-1 rounded-xl font-semibold transition-all shadow-lg shadow-black-200 active:scale-95 disabled:opacity-50 flex items-center gap-2"
