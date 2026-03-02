@@ -415,8 +415,6 @@ const HeatmapView = ({ lat, lon, locationName }) => {
 
       {/* City grid — Your Location card first, then all cities */}
       <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))" }}>
-
-        {/* Your Location card — first column, first row */}
         {lat && lon && (
           userAqi ? (
             <div
@@ -427,7 +425,7 @@ const HeatmapView = ({ lat, lon, locationName }) => {
                 boxShadow: `0 4px 14px ${userAqi.color}44`,
               }}
             >
-              <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-0 mb-0.5">📍 You</p>
+              <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-0 mb-0.5"> You are Here</p>
               <p className="text-[11px] font-extrabold text-gray-700 mt-0 mb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
                 {locationName || "Your Location"}
               </p>

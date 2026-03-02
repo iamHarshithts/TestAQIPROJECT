@@ -75,21 +75,35 @@ const App = () => {
   };
 
   const fetchForecast = async (tLat, tLon) => {
-    try {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${tLat}&lon=${tLon}&appid=${OWM_API_KEY}`);
-      const data = await response.json();
-      const daily = [];
-      const seen = new Set();
-      data.list.forEach(item => {
-        const d = new Date(item.dt * 1000).toLocaleDateString();
-        if (!seen.has(d) && daily.length < 3) {
-          seen.add(d);
-          daily.push({ date: d, aqi: item.main.aqi, components: item.components });
-        }
-      });
-      setForecast(daily);
-    } catch (err) { console.error(err); }
-  };
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${tLat}&lon=${tLon}&appid=${OWM_API_KEY}`
+    );
+    const data = await response.json();
+
+    const daily = [];
+    const seen = new Set();
+    const today = new Date().toLocaleDateString();
+
+    data.list.forEach(item => {
+      const d = new Date(item.dt * 1000).toLocaleDateString();
+      if (d === today) return;
+
+      if (!seen.has(d) && daily.length < 3) {
+        seen.add(d);
+        daily.push({
+          date: d,
+          aqi: item.main.aqi,
+          components: item.components
+        });
+      }
+    });
+
+    setForecast(daily);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const handleGPS = () => {
     if (!navigator.geolocation) return setError("GPS not supported");

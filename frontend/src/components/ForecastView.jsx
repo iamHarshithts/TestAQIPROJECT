@@ -2,9 +2,19 @@ import React from 'react';
 import { Calendar, CloudRain, Wind, MapPin } from 'lucide-react';
 import { AQI_THEMES } from '../constants/config';
 
-const formatDate = (dateStr) => {
+const formatDate = (dateStr, index) => {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayMonth = d.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short'
+  });
+
+  if (index === 0) return `Tomorrow • ${weekday}`;
+  if (index === 1) return `Day After • ${weekday}`;
+
+  return `${weekday} • ${dayMonth}`;
 };
 
 const ForecastView = ({ forecast, loading, locationName }) => {
@@ -41,7 +51,9 @@ const ForecastView = ({ forecast, loading, locationName }) => {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <p className="text-black-600 font-bold text-md uppercase">Day {idx + 1}</p>
-                  <h4 className="text-lg font-black text-slate-900">{formatDate(day.date)}</h4>
+                  <h4 className="text-lg font-black text-slate-900">
+                    {formatDate(day.date, idx)}
+                  </h4>
                 </div>
                 <div className={`${theme.color} p-2.5 rounded-2xl text-white shadow-lg`}>
                   <Wind size={20} />

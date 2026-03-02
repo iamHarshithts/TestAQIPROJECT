@@ -16,7 +16,7 @@ const TabNav = ({ activeTab, setActiveTab }) => {
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center ml-2 gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === tab.id ? 'bg-white text-yellow-500 shadow-md scale-105' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
