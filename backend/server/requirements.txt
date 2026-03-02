@@ -2,7 +2,6 @@ setuptools>=42
 wheel
 Flask
 flask-cors
-scikit-learn==1.7.0
 pandas
 numpy
 joblib
