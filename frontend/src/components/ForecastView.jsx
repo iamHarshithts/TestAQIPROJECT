@@ -22,7 +22,7 @@ const ForecastView = ({ forecast, loading }) => {
           <div key={idx} className="bg-white p-6 rounded-[2.5rem] shadow-lg border border-white hover:translate-y-[-8px] transition-all duration-300">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <p className="text-blue-600 font-bold text-xs uppercase">Day {idx + 1}</p>
+                <p className="text-black-600 font-bold text-md uppercase">Day {idx + 1}</p>
                 <h4 className="text-lg font-black text-slate-900">{day.date}</h4>
               </div>
               <div className={`${theme.color} p-2.5 rounded-2xl text-white shadow-lg`}>
@@ -31,7 +31,7 @@ const ForecastView = ({ forecast, loading }) => {
             </div>
 
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-black text-slate-800">{day.aqi}</span>
+              <span className={`text-6xl font-black ${theme.textColor}`}>{day.aqi}</span>
               <span className="text-slate-400 font-bold text-sm">Index</span>
             </div>
 
