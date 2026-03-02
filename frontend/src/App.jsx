@@ -46,7 +46,7 @@ const App = () => {
 
   const fetchForecast = async (tLat, tLon) => {
     try {
-      const response = await fetch(`http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${tLat}&lon=${tLon}&appid=${OWM_API_KEY}`);
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${tLat}&lon=${tLon}&appid=${OWM_API_KEY}`);
       const data = await response.json();
       const daily = [];
       const seen = new Set();

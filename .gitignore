@@ -10,3 +10,4 @@ __pycache__/
 aqi_env/
 env/
 node_modules/
+.env
