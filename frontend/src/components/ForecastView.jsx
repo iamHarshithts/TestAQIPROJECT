@@ -3,13 +3,11 @@ import { Calendar, CloudRain, Wind, MapPin } from 'lucide-react';
 import { AQI_THEMES } from '../constants/config';
 
 const formatDate = (dateStr, index) => {
-  const d = new Date(dateStr);
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const d = new Date(year, month - 1, day);
 
   const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
-  const dayMonth = d.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short'
-  });
+  const dayMonth = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
 
   if (index === 0) return `Tomorrow • ${weekday}`;
   if (index === 1) return `Day After • ${weekday}`;

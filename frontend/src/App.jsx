@@ -56,12 +56,17 @@ const App = () => {
     setLoading(true);
     setError(null);
     try {
-      const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${tLat}&lon=${tLon}&limit=1&appid=${OWM_API_KEY}`);
+      const OPENCAGE_KEY = 'd401373f426b4fe58496773d5c182874';
+      const geoRes = await fetch(
+        `https://api.opencagedata.com/geocode/v1/json?q=${tLat}+${tLon}&key=${OPENCAGE_KEY}&limit=1&no_annotations=1`
+      );
       const geoData = await geoRes.json();
-      if (geoData.length > 0) {
-        setLocationName(`${geoData[0].name}, ${geoData[0].country}`);
+      if (geoData.results?.length > 0) {
+        const c = geoData.results[0].components;
+        const city = c.city || c.town || c.village || c.county || '';
+        const country = c.country_code?.toUpperCase() || '';
+        setLocationName(city ? `${city}, ${country}` : geoData.results[0].formatted);
       }
-
       const response = await fetch(`${API_BASE_URL}/predict?lat=${tLat}&lon=${tLon}`);
       if (!response.ok) throw new Error("Backend Offline");
       const data = await response.json();
@@ -74,29 +79,41 @@ const App = () => {
     }
   };
 
-  const fetchForecast = async (tLat, tLon) => {
+ const fetchForecast = async (tLat, tLon) => {
   try {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${tLat}&lon=${tLon}&appid=${OWM_API_KEY}`
     );
     const data = await response.json();
 
-    const daily = [];
-    const seen = new Set();
-    const today = new Date().toLocaleDateString();
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
 
+    // Group entries by YYYY-MM-DD, skip today
+    const grouped = {};
     data.list.forEach(item => {
-      const d = new Date(item.dt * 1000).toLocaleDateString();
-      if (d === today) return;
+      const d = new Date(item.dt * 1000);
+      const dayStart = new Date(d);
+      dayStart.setHours(0, 0, 0, 0);
+      if (dayStart <= todayDate) return;
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(item);
+    });
 
-      if (!seen.has(d) && daily.length < 3) {
-        seen.add(d);
-        daily.push({
-          date: d,
-          aqi: item.main.aqi,
-          components: item.components
-        });
-      }
+    // Take 3 consecutive days in order
+    const sortedKeys = Object.keys(grouped).sort().slice(0, 3);
+
+    const daily = sortedKeys.map(key => {
+      const entries = grouped[key];
+      // Prefer the noon entry (12:00), fallback to middle entry
+      const noonEntry = entries.find(e => new Date(e.dt * 1000).getHours() === 12)
+        || entries[Math.floor(entries.length / 2)];
+      return {
+        date: key,
+        aqi: noonEntry.main.aqi,
+        components: noonEntry.components
+      };
     });
 
     setForecast(daily);
@@ -104,7 +121,6 @@ const App = () => {
     console.error(err);
   }
 };
-
   const handleGPS = () => {
     if (!navigator.geolocation) return setError("GPS not supported");
     setLoading(true);
