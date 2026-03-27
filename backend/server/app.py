@@ -4,14 +4,13 @@ import requests, joblib, os, gdown
 
 App = Flask(__name__)
 
-# ✅ Enable CORS
+
 CORS(App, resources={r"/*": {
     "origins": "*",
     "methods": ["GET", "POST", "OPTIONS"],
     "allow_headers": ["Content-Type"]
 }})
 
-# ✅ Load Model
 MODEL_PATH = "model/random_forest_model.pkl"
 
 if not os.path.exists(MODEL_PATH):
@@ -25,8 +24,6 @@ if not os.path.exists(MODEL_PATH):
 Model = joblib.load(MODEL_PATH)
 
 FEATURES = ['pm2_5','pm10','no','no2','nox','nh3','co','so2','o3']
-
-# ✅ CPCB Breakpoints
 BREAKPOINTS = {
     "pm2_5": [[0,30,0,50],[30,60,51,100],[60,90,101,200],[90,120,201,300],[120,250,301,400],[250,400,401,500]],
     "pm10":  [[0,50,0,50],[50,100,51,100],[100,250,101,200],[250,350,201,300],[350,430,301,400],[430,500,401,500]],
@@ -35,7 +32,6 @@ BREAKPOINTS = {
     "co":    [[0,1,0,50],[1,2,51,100],[2,10,101,200],[10,17,201,300],[17,34,301,400],[34,50,401,500]]
 }
 
-# ✅ AQI Category
 def classify_aqi(aqi):
     if aqi <= 50:
         return "Good"
@@ -50,7 +46,6 @@ def classify_aqi(aqi):
     else:
         return "Severe"
 
-# ✅ Sub Index Calculation
 def sub_index(c, pollutant):
     bp = BREAKPOINTS.get(pollutant)
     if not bp:
@@ -60,7 +55,6 @@ def sub_index(c, pollutant):
             return il + ((ih - il)/(ch - cl))*(c - cl)
     return 500
 
-# ✅ CPCB AQI
 def calculate_cpcb_aqi(comp):
     co_mg = comp.get('co', 0)/1000
     indices = [
@@ -72,7 +66,6 @@ def calculate_cpcb_aqi(comp):
     ]
     return round(max(indices), 2)
 
-# ✅ Get Pollution Data
 def get_pollution(lat, lon):
     url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid=YOUR_API_KEY"
     data = requests.get(url).json()["list"][0]["components"]
@@ -88,8 +81,6 @@ def get_pollution(lat, lon):
         data.get('so2', 0),
         data.get('o3', 0)
     ]
-
-# ✅ Routes
 @App.route("/")
 def home():
     return jsonify({"status": "API running"})
