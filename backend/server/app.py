@@ -101,12 +101,10 @@ def predict():
     try:
         values = get_pollution(lat, lon)
 
-        # 🔹 ML Prediction
         ml_aqi = round(Model.predict([values])[0], 2)
 
         comp_dict = dict(zip(FEATURES, values))
 
-        # 🔹 CPCB AQI (Primary)
         cpcb_aqi = calculate_cpcb_aqi(comp_dict)
 
 
